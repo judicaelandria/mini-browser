@@ -4,6 +4,7 @@ import {
   HTMLAttributes,
   KeyboardEvent,
   useCallback,
+  useRef,
   useState,
 } from "react";
 import { isValidURL } from "../libs/url";
@@ -19,6 +20,7 @@ export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
   const [url, setUrl] = useState<string>("");
   const [navigationLink, setNavigationLink] = useState<string>("");
   const [loadingContent, setLoadingContent] = useState(false);
+  const frameRef = useRef<HTMLIFrameElement>(null);
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +37,10 @@ export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
           if (url.includes("youtube")) {
             const splitted = url.split("com/");
             const embeddedLink = splitted[0] + "com/embed/" + splitted[1];
-            setNavigationLink(embeddedLink);
+            const hasHttp = embeddedLink.includes("https://");
+            setNavigationLink(
+              hasHttp ? embeddedLink : "https://" + embeddedLink
+            );
           } else {
             if (!url.includes("https://")) {
               setUrl("https://" + url);
@@ -43,7 +48,7 @@ export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
             } else setNavigationLink(url);
           }
         } else {
-          setNavigationLink("https://google.com/search?q=" + url);
+          setNavigationLink("https://bing.com/search?q=" + url);
         }
       }
     },
@@ -57,7 +62,7 @@ export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
 
   return (
     <div
-      className="rounded-lg absolute bg-[#E6E6E6] p-2 pointer-events-auto"
+      className="rounded-lg absolute bg-light-background dark:bg-dark-background p-2 pointer-events-auto"
       style={{ width, height, top: y, left: x }}
       {...rest}
     >
@@ -65,7 +70,7 @@ export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
         <div className="relative w-3/4 h-6">
           <input
             type="text"
-            className="w-full h-full rounded-full bg-white text-xs px-3 truncate"
+            className="w-full h-full rounded-full bg-white dark:bg-dark-accent-1 dark:text-dark-foreground text-xs px-3 truncate focus:outline-[#484CA0] border-none"
             value={url}
             onChange={handleChange}
             onKeyDown={handleNavigate}
@@ -76,18 +81,22 @@ export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
           ) : null}
         </div>
       </div>
-      <div className="w-full h-[calc(100%_-_32px)] rounded-lg bg-white">
+      <div className="w-full h-[calc(100%_-_32px)] rounded-lg bg-white dark:bg-accent-2">
         {navigationLink.length === 0 ? (
           <div className="w-full h-full"></div>
         ) : (
           <iframe
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+            allow="autoplay"
             id="mini-browser-view"
+            ref={frameRef}
             src={navigationLink}
-            className="w-full h-full"
+            className="w-full h-full rounded-lg"
             onLoad={() => setLoadingContent(false)}
+            allowFullScreen
           />
         )}
+        <object data="https://www.google.com" width="600" height="400"></object>
       </div>
     </div>
   );

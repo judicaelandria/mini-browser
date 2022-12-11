@@ -8,7 +8,10 @@ export const Spinner = ({ className }: SpinnerProps) => {
   return (
     <svg
       role="status"
-      className={twMerge("inline text-black animate-spin w-4 h-4", className)}
+      className={twMerge(
+        "inline text-light-foreground dark:text-dark-foreground animate-spin w-4 h-4",
+        className
+      )}
       viewBox="0 0 100 101"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
