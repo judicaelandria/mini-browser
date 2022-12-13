@@ -18,10 +18,7 @@ export const shapeMachine = createMachine(
         on: {
           POINTER_DOWN: {
             target: "pointing",
-            actions: ["onPointerDown", "onSelectShape"],
-          },
-          ON_SELECT_SHAPE: {
-            actions: "onSelectShape",
+            actions: "onPointerDown",
           },
           ON_DELETE_SHAPE: {
             cond: (ctx) => !!ctx.appState.currentSelectedShape,
@@ -59,7 +56,6 @@ export const shapeMachine = createMachine(
         | { type: "POINTER_DOWN"; data: { point: number[]; id: string } }
         | { type: "POINTER_MOVE" }
         | { type: "POINTER_UP" }
-        | { type: "ON_SELECT_SHAPE" }
         | { type: "ON_DELETE_SHAPE" }
         | { type: "ON_DB_CLICK_CANVAS"; point: number[] }
         | { type: "DRAG"; point: number[] },

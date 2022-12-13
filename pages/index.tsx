@@ -9,29 +9,41 @@ const Home = () => {
   const [state, send] = useMachine(shapeMachine);
   const currentSelectedShape = state.context.appState.currentSelectedShape;
 
-  const onPointerDown = useCallback((e: PointerEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    const id = e.currentTarget.id;
-    const point = [e.clientX, e.clientY];
-    send({ type: "POINTER_DOWN", data: { id, point } });
-  }, []);
+  const onPointerDown = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      e.currentTarget.setPointerCapture(e.pointerId);
+      const id = e.currentTarget.id;
+      const point = [e.clientX, e.clientY];
+      send({ type: "POINTER_DOWN", data: { id, point } });
+    },
+    [send]
+  );
 
-  const onPointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
-    const point = [e.clientX, e.clientY];
-    send({ type: "POINTER_MOVE" });
-    send({ type: "DRAG", point });
-  }, []);
+  const onPointerMove = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      const point = [e.clientX, e.clientY];
+      send({ type: "POINTER_MOVE" });
+      send({ type: "DRAG", point });
+    },
+    [send]
+  );
 
-  const onPointerUp = useCallback((e: PointerEvent<HTMLDivElement>) => {
-    e.currentTarget.releasePointerCapture(e.pointerId);
-    send("POINTER_UP");
-  }, []);
+  const onPointerUp = useCallback(
+    (e: PointerEvent<HTMLDivElement>) => {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+      send("POINTER_UP");
+    },
+    [send]
+  );
 
-  const onDoubleClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
-    const point = [event.clientX, event.clientY];
-    send({ type: "ON_DB_CLICK_CANVAS", point });
-  }, []);
+  const onDoubleClick = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      const point = [event.clientX, event.clientY];
+      send({ type: "ON_DB_CLICK_CANVAS", point });
+    },
+    [send]
+  );
 
   const onDeleteShape = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
@@ -39,7 +51,7 @@ const Home = () => {
         send({ type: "ON_DELETE_SHAPE" });
       }
     },
-    [currentSelectedShape]
+    [send]
   );
 
   // const onFocusCanvas = useCallback((event: MouseEvent<HTMLDivElement>) => {
@@ -48,8 +60,6 @@ const Home = () => {
   // }, []);
 
   const allShapes = Object.values(state.context.shapes);
-
-  console.log(state.value);
 
   return (
     <div
