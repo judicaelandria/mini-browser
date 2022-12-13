@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { twMerge } from "tailwind-merge";
 import { isValidURL } from "../libs/url";
 import { Spinner } from "./Spinner";
 
@@ -14,9 +15,10 @@ interface IFrameProps
   extends DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   size: number[];
   point: number[];
+  className?: string;
 }
 
-export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
+export const IFrame = ({ size, point, className, ...rest }: IFrameProps) => {
   const [url, setUrl] = useState<string>("");
   const [navigationLink, setNavigationLink] = useState<string>("");
   const [loadingContent, setLoadingContent] = useState(false);
@@ -62,8 +64,12 @@ export const IFrame = ({ size, point, ...rest }: IFrameProps) => {
 
   return (
     <div
-      className="rounded-lg absolute bg-light-background dark:bg-dark-background p-2 pointer-events-auto"
+      className={twMerge(
+        "rounded-lg absolute bg-light-background dark:bg-dark-background p-2 pointer-events-auto",
+        className
+      )}
       style={{ width, height, top: y, left: x }}
+      tabIndex={0}
       {...rest}
     >
       <div className="w-full flex justify-center items-center mb-2 relative">

@@ -1,74 +1,82 @@
+import { useMachine } from "@xstate/react";
 import Head from "next/head";
-import { PointerEvent, useRef, useState } from "react";
+import { KeyboardEvent, MouseEvent, PointerEvent, useCallback } from "react";
+import { twMerge } from "tailwind-merge";
 import { IFrame } from "../components/IFrame";
-import { add, sub } from "../libs/utils";
-import { Shape } from "../types";
+import { shapeMachine } from "../machines/shapeMachine";
 
 const Home = () => {
-  const [shapes, setShapes] = useState<Record<string, Shape>>({
-    a: {
-      id: "a",
-      size: [800, 600],
-      point: [200, 200],
-    },
-  });
+  const [state, send] = useMachine(shapeMachine);
+  const currentSelectedShape = state.context.appState.currentSelectedShape;
 
-  const rDragging = useRef<{
-    shape: Shape;
-    origin: number[];
-  } | null>(null);
-
-  function onPointerDown(e: PointerEvent<HTMLDivElement>) {
+  const onPointerDown = useCallback((e: PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
-
     const id = e.currentTarget.id;
     const point = [e.clientX, e.clientY];
+    send({ type: "POINTER_DOWN", data: { id, point } });
+  }, []);
 
-    rDragging.current = {
-      shape: { ...shapes[id] },
-      origin: point,
-    };
-  }
-
-  function onPointerMove(e: PointerEvent<HTMLDivElement>) {
-    const dragging = rDragging.current;
-
-    if (!dragging) return;
-
-    const shape = shapes[dragging.shape.id];
+  const onPointerMove = useCallback((e: PointerEvent<HTMLDivElement>) => {
     const point = [e.clientX, e.clientY];
-    const delta = sub(point, dragging.origin);
+    send({ type: "POINTER_MOVE" });
+    send({ type: "DRAG", point });
+  }, []);
 
-    setShapes({
-      ...shapes,
-      [shape.id]: {
-        ...shape,
-        point: add(dragging.shape.point, delta),
-      },
-    });
-  }
-
-  const onPointerUp = (e: PointerEvent<HTMLDivElement>) => {
+  const onPointerUp = useCallback((e: PointerEvent<HTMLDivElement>) => {
     e.currentTarget.releasePointerCapture(e.pointerId);
-    rDragging.current = null;
-  };
+    send("POINTER_UP");
+  }, []);
+
+  const onDoubleClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    const point = [event.clientX, event.clientY];
+    send({ type: "ON_DB_CLICK_CANVAS", point });
+  }, []);
+
+  const onDeleteShape = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === "Backspace") {
+        send({ type: "ON_DELETE_SHAPE" });
+      }
+    },
+    [currentSelectedShape]
+  );
+
+  // const onFocusCanvas = useCallback((event: MouseEvent<HTMLDivElement>) => {
+  //   event.stopPropagation();
+  //   setAppState({ currentSelectedShape: null });
+  // }, []);
+
+  const allShapes = Object.values(state.context.shapes);
+
+  console.log(state.value);
 
   return (
-    <div className="w-screen h-screen bg-white relative" tabIndex={1}>
+    <div
+      className="w-screen h-screen bg-white relative overflow-hidden"
+      onDoubleClick={onDoubleClick}
+      onKeyDown={onDeleteShape}
+      tabIndex={1}
+    >
       <Head>
         <title>Browser in browser</title>
       </Head>
-      {Object.values(shapes).map((shape) => (
-        <IFrame
-          point={shape.point}
-          size={shape.size}
-          key={shape.id}
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerMove={onPointerMove}
-          id={shape.id}
-        />
-      ))}
+      {allShapes.length
+        ? allShapes.map((shape) => (
+            <IFrame
+              point={shape.point}
+              size={shape.size}
+              key={shape.id}
+              onPointerDown={onPointerDown}
+              onPointerUp={onPointerUp}
+              onPointerMove={onPointerMove}
+              id={shape.id}
+              className={twMerge(
+                currentSelectedShape === shape.id && "border-4 border-[#484CA0]"
+              )}
+            />
+          ))
+        : null}
     </div>
   );
 };

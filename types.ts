@@ -3,3 +3,7 @@ export type Shape = {
   point: number[];
   size: number[];
 };
+
+export type AppState = {
+  currentSelectedShape: string | null;
+};
