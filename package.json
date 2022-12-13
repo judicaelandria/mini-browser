@@ -6,12 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "xstate typegen \"./machines/*.ts?(x)\""
   },
   "dependencies": {
     "@types/node": "18.11.12",
     "@types/react": "18.0.26",
     "@types/react-dom": "18.0.9",
+    "@xstate/cli": "^0.4.0",
     "@xstate/react": "^3.0.1",
     "eslint": "8.29.0",
     "eslint-config-next": "13.0.6",
@@ -27,6 +29,7 @@
     "@types/uuid": "^9.0.0",
     "autoprefixer": "^10.4.13",
     "postcss": "^8.4.19",
+    "prettier": "^2.8.1",
     "tailwindcss": "^3.2.4"
   }
 }
