@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "xstate typegen \"./machines/*.ts?(x)\""
+    "lint": "next lint"
   },
   "dependencies": {
     "@types/node": "18.11.12",
